@@ -3,7 +3,7 @@ import {findDOMNode} from 'react-dom';
 import {Renderer, RendererProps} from '../../factory';
 import {SchemaNode, Action, Schema} from '../../types';
 import forEach from 'lodash/forEach';
-import {filter} from '../../utils/tpl';
+import {evalExpression, filter} from '../../utils/tpl';
 import DropDownButton from '../DropDownButton';
 import Checkbox from '../../components/Checkbox';
 import Button from '../../components/Button';
@@ -259,7 +259,7 @@ export interface TableProps extends RendererProps {
   selected?: Array<any>;
   maxKeepItemSelectionLength?: number;
   valueField?: string;
-  draggable?: boolean;
+  draggable?: boolean | string;
   columnsTogglable?: boolean | 'auto';
   affixHeader?: boolean;
   affixColumns?: boolean;
@@ -2068,7 +2068,9 @@ export default class Table extends React.Component<TableProps, object> {
       !store.isNested &&
       region === 'header' &&
       store.rows.length > 1 &&
-      !~this.renderedToolbars.indexOf('drag-toggler')
+      !~this.renderedToolbars.indexOf('drag-toggler') &&
+      (typeof store.draggable !== 'string' ||
+        evalExpression(store.draggable, data))
     ) {
       actions.push({
         type: 'button',
